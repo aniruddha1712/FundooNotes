@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FundooRepositoryLayer.Migrations
 {
     [DbContext(typeof(UserContext))]
-    [Migration("20220613124135_Notes")]
-    partial class Notes
+    [Migration("20220614132810_Collaborator")]
+    partial class Collaborator
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -20,7 +20,27 @@ namespace FundooRepositoryLayer.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("FundooCommonLayer.Notes", b =>
+            modelBuilder.Entity("FundooCommonLayer.CollaboratorModel", b =>
+                {
+                    b.Property<int>("CollabId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("CollabEmail")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("NoteId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CollabId");
+
+                    b.HasIndex("NoteId");
+
+                    b.ToTable("Collaborator");
+                });
+
+            modelBuilder.Entity("FundooCommonLayer.NoteModel", b =>
                 {
                     b.Property<int>("NoteId")
                         .ValueGeneratedOnAdd()
@@ -85,6 +105,15 @@ namespace FundooRepositoryLayer.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("FundooCommonLayer.CollaboratorModel", b =>
+                {
+                    b.HasOne("FundooCommonLayer.NoteModel", "noteModel")
+                        .WithMany()
+                        .HasForeignKey("NoteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
