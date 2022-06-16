@@ -3,6 +3,7 @@ using FundooCommonLayer;
 using FundooRepositoryLayer.Context;
 using FundooRepositoryLayer.Interface;
 using Microsoft.Extensions.Configuration;
+using StackExchange.Redis;
 using System;
 using System.Linq;
 using System.Net;
@@ -50,9 +51,14 @@ namespace FundooRepositoryLayer.Services
                 var validEmail = this.userContext.Users.Where(x => x.Email == userData.Email).FirstOrDefault();
                 if (validEmail != null)
                 {
-                    var validPass = this.userContext.Users.Where(x => x.Password == EncryptPassword(userData.Password)).FirstOrDefault();
+                    var validPass = this.userContext.Users.Where(x => x.Password == EncryptPassword(userData.Password) && x.Email == userData.Email).FirstOrDefault();
                     if (validPass != null)
                     {
+                        ConnectionMultiplexer cMultiplexer = ConnectionMultiplexer.Connect("127.0.0.1:6379");
+                        IDatabase database = cMultiplexer.GetDatabase();
+                        database.StringSet(key: "First Name", validPass.FirstName);
+                        database.StringSet(key: "Last Name", validPass.LastName);
+                        database.StringSet(key: "User Id", validPass.UserId).ToString();
                         return userData;
                     }
                     return null;

@@ -1,6 +1,7 @@
 ﻿using FundooBusinessLayer.Interface;
 using FundooCommonLayer;
 using Microsoft.AspNetCore.Mvc;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,8 +53,22 @@ namespace FundooNotesApp.Controllers
                 var result = this.manager.Login(userData);
                 if(result != null)
                 {
+                    //using resdi cache
+                    ConnectionMultiplexer cMultiplexer = ConnectionMultiplexer.Connect("127.0.0.1:6379");
+                    IDatabase database = cMultiplexer.GetDatabase();
+                    string firstName = database.StringGet(key: "First Name");
+                    string lastnNme = database.StringGet(key: "Last Name");
+                    int userId = Convert.ToInt32(database.StringGet(key: "User Id"));
+                    RegisterModel reg = new RegisterModel
+                    {
+                        FirstName = firstName,
+                        LastName = lastnNme,
+                        Email = userData.Email,
+                        UserId = userId
+                    };
+
                     string token = this.manager.JWTTokenGeneration(userData.Email);
-                    return this.Ok(new { Status = true, Message = "Login Successful", Data = result , Token = token});
+                    return this.Ok(new { Status = true, Message = "Login Successful", Data = reg , Token = token});
                 }
                 else
                 {
