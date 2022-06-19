@@ -4,12 +4,13 @@ using FundooCommonLayer;
 using FundooRepositoryLayer.Context;
 using FundooRepositoryLayer.Interface;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+
 
 namespace FundooRepositoryLayer.Services
 {
@@ -24,10 +25,22 @@ namespace FundooRepositoryLayer.Services
         }
         public IConfiguration Configuration { get; }
 
-        public async Task<NoteModel> CreateNote(NoteModel note)
+        public async Task<NoteModel> CreateNote(NoteModel createNote,int userId)
         {
             try
             {
+                var user = userContext.Users.Where(u => u.UserId == userId).FirstOrDefault();
+                NoteModel note = new NoteModel();
+                note.UserId = user.UserId;
+                note.Title = createNote.Title;
+                note.TakeNote = createNote.TakeNote;
+                note.Reminder = createNote.Reminder;
+                note.Pinned = createNote.Pinned;
+                note.Archieve = createNote.Archieve;
+                note.Trash = createNote.Trash;
+                note.Colour = createNote.Colour;
+                note.Image = createNote.Image;
+
                 if (note.Title != null || note.TakeNote != null)
                 {
                     this.userContext.Notes.Add(note);
@@ -358,12 +371,12 @@ namespace FundooRepositoryLayer.Services
                 throw new Exception(e.Message);
             }
         }
-        public IEnumerable<NoteModel> GetReminderOfNote(int userId)
+        public IEnumerable<string> GetReminderOfNote(int userId)
         {
             try
             {
                 var myNotes = this.userContext.Notes.Where(x => x.UserId == userId &&
-                        x.Reminder != null).ToList();
+                        x.Reminder != null).Select(r => r.Reminder).ToList();
 
                 if (myNotes.Count != 0)
                 {
@@ -431,5 +444,6 @@ namespace FundooRepositoryLayer.Services
                 throw new Exception(e.Message);
             }
         }
+
     }
 }

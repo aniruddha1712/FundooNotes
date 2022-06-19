@@ -3,11 +3,15 @@ using FundooCommonLayer;
 using FundooRepositoryLayer.Context;
 using FundooRepositoryLayer.Interface;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
 using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace FundooRepositoryLayer.Services
@@ -44,7 +48,7 @@ namespace FundooRepositoryLayer.Services
             }
         }
 
-        public LoginModel Login(LoginModel userData)
+        public string Login(LoginModel userData)
         {
             try
             {
@@ -59,7 +63,28 @@ namespace FundooRepositoryLayer.Services
                         database.StringSet(key: "First Name", validPass.FirstName);
                         database.StringSet(key: "Last Name", validPass.LastName);
                         database.StringSet(key: "User Id", validPass.UserId).ToString();
-                        return userData;
+
+                        var tokenHandler = new JwtSecurityTokenHandler();
+                        var tokenKey = Encoding.ASCII.GetBytes("THIS_IS_MY_KEY_TO_GENERATE_TOKEN");
+                        var tokenDescriptor = new SecurityTokenDescriptor
+                        {
+                            Subject = new ClaimsIdentity(new Claim[]
+                            {
+                                new Claim("Email", userData.Email),
+                                new Claim("UserId", validPass.UserId.ToString())
+                            }),
+
+                            Issuer = Configuration["Jwt:Issuer"],//new
+                            Audience = Configuration["Jwt:Audience"],//new
+                            Expires = DateTime.UtcNow.AddDays(90),
+                            SigningCredentials =
+                            new SigningCredentials(
+                                new SymmetricSecurityKey(tokenKey),
+                                SecurityAlgorithms.HmacSha256Signature)
+                        };
+                        var token = tokenHandler.CreateToken(tokenDescriptor);
+                        return tokenHandler.WriteToken(token);
+                        //return userData;
                     }
                     return null;
                 }
@@ -70,6 +95,7 @@ namespace FundooRepositoryLayer.Services
                 throw new Exception(e.Message);
             }
         }
+       
         private bool SendEmail(string email)
         {
             string linkToBeSend = this.ReceiveQueue(email);

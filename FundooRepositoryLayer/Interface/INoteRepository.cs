@@ -9,7 +9,7 @@ namespace FundooRepositoryLayer.Interface
 {
     public interface INoteRepository
     {
-        Task<NoteModel> CreateNote(NoteModel note);
+        Task<NoteModel> CreateNote(NoteModel createNote,int userId);
         List<NoteModel> GetNotes(int userId);
         Task<EditNoteModel> EditNote(EditNoteModel note);
         Task<NoteModel> ChangeColour(NoteModel note);
@@ -22,7 +22,7 @@ namespace FundooRepositoryLayer.Interface
         Task<string> DeletePermanently(int noteId);
         Task<string> AddReminderForNote(int noteId, string remindNote);
         Task<string> DeleteReminder(int noteId);
-        IEnumerable<NoteModel> GetReminderOfNote(int userId);
+        IEnumerable<string> GetReminderOfNote(int userId);
         Task<string> InsertImage(int noteId, IFormFile form);
         Task<string> DeleteImage(int noteId);
     }

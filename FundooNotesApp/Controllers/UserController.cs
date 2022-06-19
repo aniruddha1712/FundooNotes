@@ -1,6 +1,9 @@
 ﻿using FundooBusinessLayer.Interface;
 using FundooCommonLayer;
+using FundooRepositoryLayer.Interface;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
@@ -16,12 +19,14 @@ namespace FundooNotesApp.Controllers
     public class UserController : Controller
     {
         private readonly IUserManager manager;
+        private readonly ILogger logger;
 
-        public UserController(IUserManager manager)
+        public UserController(IUserManager manager,ILogger<UserController> logger)
         {
             this.manager = manager;
+            this.logger = logger;
         }
-
+        
         [HttpPost]
         [Route("register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel userData) ////frombody attribute says value read from body of the request
@@ -29,13 +34,18 @@ namespace FundooNotesApp.Controllers
             try
             {
                 string result = await this.manager.Register(userData);
-                //this.logger.LogInformation("New user added successfully with userid " + userData.UserId + " & firstname:" + userData.FirstName);
+                HttpContext.Session.SetString("User Name ", userData.FirstName + " " + userData.LastName);
+                HttpContext.Session.SetString("User Email ", userData.Email);
                 if (result.Equals("Registration Succesful"))
                 {
+                    logger.LogInformation("New user added successfully with userid " + userData.UserId + " & firstname:" + userData.FirstName);
+                    var userName = HttpContext.Session.GetString("User Name");
+                    logger.LogInformation("Username " + userName + result);
                     return this.Ok(new ResponseModel<string>() { Status = true, Message = result });
                 }
                 else
                 {
+                    logger.LogInformation("Username " + userData + result);
                     return this.BadRequest(new ResponseModel<string>() { Status = false, Message = result });
                 }
             }
@@ -67,8 +77,8 @@ namespace FundooNotesApp.Controllers
                         UserId = userId
                     };
 
-                    string token = this.manager.JWTTokenGeneration(userData.Email);
-                    return this.Ok(new { Status = true, Message = "Login Successful", Data = reg , Token = token});
+                    //string token = this.manager.JWTTokenGeneration(userData.Email,userId);
+                    return this.Ok(new { Status = true, Message = "Login Successful",Data = reg, Token = result });
                 }
                 else
                 {
