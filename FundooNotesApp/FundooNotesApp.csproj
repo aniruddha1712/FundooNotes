@@ -29,5 +29,9 @@
     <ProjectReference Include="..\FundooBusinessLayer\FundooBusinessLayer.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Logs\" />
+  </ItemGroup>
+
 
 </Project>

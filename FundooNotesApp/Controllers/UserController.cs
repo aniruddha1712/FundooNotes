@@ -34,13 +34,13 @@ namespace FundooNotesApp.Controllers
             try
             {
                 string result = await this.manager.Register(userData);
-                HttpContext.Session.SetString("User Name ", userData.FirstName + " " + userData.LastName);
-                HttpContext.Session.SetString("User Email ", userData.Email);
+                //HttpContext.Session.SetString("User Name ", userData.FirstName + " " + userData.LastName);
+                //HttpContext.Session.SetString("User Email ", userData.Email);
                 if (result.Equals("Registration Succesful"))
                 {
                     logger.LogInformation("New user added successfully with userid " + userData.UserId + " & firstname:" + userData.FirstName);
-                    var userName = HttpContext.Session.GetString("User Name");
-                    logger.LogInformation("Username " + userName + result);
+                    //var userName = HttpContext.Session.GetString("User Name");
+                    //logger.LogInformation("Username " + userName + result);
                     return this.Ok(new ResponseModel<string>() { Status = true, Message = result });
                 }
                 else
@@ -92,7 +92,7 @@ namespace FundooNotesApp.Controllers
         }
 
         [HttpPost]
-        [Route("forgot")]
+        [Route("forgot/{email}")]
         public IActionResult ForgotPassword(string email)
         {
             try

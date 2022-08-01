@@ -36,9 +36,9 @@ namespace FundooNotesApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSession(option => {
-                option.IdleTimeout = TimeSpan.FromHours(1);
-            });
+            //services.AddSession(option => {
+            //    option.IdleTimeout = TimeSpan.FromHours(1);
+            //});
             services.AddControllers().AddJsonOptions(option => {
                 option.JsonSerializerOptions.PropertyNamingPolicy = null;
             });
@@ -126,11 +126,11 @@ namespace FundooNotesApp
 
             app.UseRouting();
 
-            app.UseSession();
-
-            app.UseAuthorization();
+            //app.UseSession();
 
             app.UseAuthentication();
+
+            app.UseAuthorization();
 
             app.UseCors("CorsPolicyAllHosts"); //to connect with fontend
 

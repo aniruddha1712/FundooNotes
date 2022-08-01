@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace FundooNotesApp.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [Route("api/[Controller]")]
     public class NoteController : Controller
@@ -31,7 +31,6 @@ namespace FundooNotesApp.Controllers
             this.memoryCache = memoryCache;
         }
 
-        //[Authorize]
         [HttpPost]
         [Route("createnote")]
         public async Task<IActionResult> CreateNote([FromBody] NoteModel mynotes)
@@ -122,7 +121,7 @@ namespace FundooNotesApp.Controllers
             }
         }
         [HttpPatch]
-        [Route("archivenote")]
+        [Route("archivenote/{noteId}")]
         public async Task<IActionResult> NoteArchive(int noteId)
         {
             try
@@ -187,7 +186,7 @@ namespace FundooNotesApp.Controllers
             }
         }
         [HttpDelete]
-        [Route("movetotrash")]
+        [Route("movetotrash/{noteId}")]
         public async Task<IActionResult> DeleteNote(int noteId)
         {
             try
@@ -231,8 +230,8 @@ namespace FundooNotesApp.Controllers
                 throw new Exception(e.Message);
             }
         }
-        [HttpGet]
-        [Route("restorefromtrash")]
+        [HttpPatch]
+        [Route("restorefromtrash/{noteId}")]
         public async Task<IActionResult> RestoreNoteFromTrash(int noteId)
         {
             try
@@ -253,7 +252,7 @@ namespace FundooNotesApp.Controllers
             }
         }
         [HttpDelete]
-        [Route("deleteforever")]
+        [Route("deleteforever/{noteId}")]
         public async Task<IActionResult> DeletePermanently(int noteId)
         {
             try
@@ -381,7 +380,6 @@ namespace FundooNotesApp.Controllers
             }
         }
 
-       // [Authorize]
         [HttpGet]
         [Route("getnotesredis")]
         public async Task<IActionResult> GetAllnotesUsingRedisCache()
